@@ -1,0 +1,53 @@
+export const ROLES = {
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER',
+};
+
+export const PERMISSIONS = {
+  CREATE_GOAL: 'CREATE_GOAL',
+  EDIT_GOAL: 'EDIT_GOAL',
+  DELETE_GOAL: 'DELETE_GOAL',
+  POST_ANNOUNCEMENT: 'POST_ANNOUNCEMENT',
+  PIN_ANNOUNCEMENT: 'PIN_ANNOUNCEMENT',
+  DELETE_ANNOUNCEMENT: 'DELETE_ANNOUNCEMENT',
+  INVITE_MEMBER: 'INVITE_MEMBER',
+  REMOVE_MEMBER: 'REMOVE_MEMBER',
+  CHANGE_ROLE: 'CHANGE_ROLE',
+  CREATE_ACTION_ITEM: 'CREATE_ACTION_ITEM',
+  EDIT_ANY_ACTION_ITEM: 'EDIT_ANY_ACTION_ITEM',
+  DELETE_ANY_ACTION_ITEM: 'DELETE_ANY_ACTION_ITEM',
+  EDIT_WORKSPACE: 'EDIT_WORKSPACE',
+  DELETE_WORKSPACE: 'DELETE_WORKSPACE',
+  EXPORT_DATA: 'EXPORT_DATA',
+};
+
+export const ROLE_PERMISSIONS = {
+  ADMIN: Object.values(PERMISSIONS),
+  MEMBER: [
+    'CREATE_GOAL',
+    'EDIT_GOAL',
+    'CREATE_ACTION_ITEM',
+    'EXPORT_DATA',
+  ],
+};
+
+export const SOCKET_EVENTS = {
+  JOIN_WORKSPACE: 'join_workspace',
+  LEAVE_WORKSPACE: 'leave_workspace',
+  USER_ONLINE: 'user_online',
+  USER_OFFLINE: 'user_offline',
+  ONLINE_MEMBERS: 'online_members',
+  GOAL_CREATED: 'goal_created',
+  GOAL_UPDATED: 'goal_updated',
+  GOAL_DELETED: 'goal_deleted',
+  ACTION_ITEM_CREATED: 'action_item_created',
+  ACTION_ITEM_UPDATED: 'action_item_updated',
+  ACTION_ITEM_DELETED: 'action_item_deleted',
+  ANNOUNCEMENT_CREATED: 'announcement_created',
+  ANNOUNCEMENT_UPDATED: 'announcement_updated',
+  ANNOUNCEMENT_DELETED: 'announcement_deleted',
+  REACTION_ADDED: 'reaction_added',
+  COMMENT_ADDED: 'comment_added',
+  NOTIFICATION: 'notification',
+  MILESTONE_UPDATED: 'milestone_updated',
+};

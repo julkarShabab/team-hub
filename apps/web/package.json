@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@team-hub/shared": "*",
+    "@team-hub/shared": "file:../../packages/shared",
     "axios": "^1.6.7",
     "date-fns": "^3.3.1",
     "lucide-react": "^0.330.0",

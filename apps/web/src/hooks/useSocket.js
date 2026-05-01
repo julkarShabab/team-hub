@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { SOCKET_EVENTS } from '@team-hub/shared';
+import { SOCKET_EVENTS } from '../lib/constants';
 import useGoalStore from '../store/goalStore';
 import useActionItemStore from '../store/actionItemStore';
 

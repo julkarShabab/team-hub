@@ -7,7 +7,7 @@ import useWorkspaceStore from '../../../store/workspaceStore';
 import useAuthStore from '../../../store/authStore';
 import api from '../../../lib/api';
 import Avatar from '../../../components/Avatar';
-import { PERMISSIONS, ROLE_PERMISSIONS } from '@team-hub/shared';
+import { PERMISSIONS, ROLE_PERMISSIONS } from '../../../lib/constants';
 
 const EMOJI_LIST = ['👍', '❤️', '🎉', '🚀', '👏', '🔥'];
 

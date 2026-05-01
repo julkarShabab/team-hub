@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import useWorkspaceStore from '../../../store/workspaceStore';
 import useAuthStore from '../../../store/authStore';
 import Avatar from '../../../components/Avatar';
-import { PERMISSIONS, ROLE_PERMISSIONS } from '@team-hub/shared';
+import { PERMISSIONS, ROLE_PERMISSIONS } from '../../../lib/constants';
 
 const ROLE_BADGES = {
   ADMIN: { label: 'Admin', icon: Crown, class: 'bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400' },

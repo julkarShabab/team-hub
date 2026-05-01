@@ -7,7 +7,7 @@ import Modal from '../Modal';
 import Avatar from '../Avatar';
 import useGoalStore from '../../store/goalStore';
 import useAuthStore from '../../store/authStore';
-import { PERMISSIONS, ROLE_PERMISSIONS } from '@team-hub/shared';
+import { PERMISSIONS, ROLE_PERMISSIONS } from '../../lib/constants';
 
 const STATUS_CONFIG = {
   ON_TRACK: { label: 'On Track', class: 'badge-success' },
