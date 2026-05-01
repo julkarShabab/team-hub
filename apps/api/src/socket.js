@@ -1,4 +1,4 @@
-const { SOCKET_EVENTS } = require('@team-hub/shared');
+const { SOCKET_EVENTS } = require('./utils/constants');
 const { verifyAccessToken } = require('./utils/jwt');
 
 // Track online users per workspace: { workspaceId: Set<userId> }

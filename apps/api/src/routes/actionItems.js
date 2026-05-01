@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { prisma } = require('../utils/prisma');
 const { authenticate, requireMember } = require('../middleware/auth');
-const { SOCKET_EVENTS } = require('@team-hub/shared');
+const { SOCKET_EVENTS } = require('../utils/constants');
 const { emitToWorkspace } = require('../socket');
 
 const router = express.Router();

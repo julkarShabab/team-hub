@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { prisma } = require('../utils/prisma');
 const { authenticate, requirePermission, requireMember } = require('../middleware/auth');
-const { PERMISSIONS, SOCKET_EVENTS } = require('@team-hub/shared');
+const { PERMISSIONS, SOCKET_EVENTS } = require('../utils/constants');
 const { emitToWorkspace } = require('../socket');
 
 const router = express.Router();
@@ -111,7 +111,7 @@ router.put('/:goalId', authenticate, async (req, res, next) => {
     });
     if (!membership) return res.status(403).json({ error: 'Access denied' });
 
-    const { ROLE_PERMISSIONS } = require('@team-hub/shared');
+    const { ROLE_PERMISSIONS } = require('../utils/constants');
     if (!ROLE_PERMISSIONS[membership.role]?.includes(PERMISSIONS.EDIT_GOAL)) {
       return res.status(403).json({ error: 'Permission denied: EDIT_GOAL' });
     }

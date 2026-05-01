@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { prisma } = require('../utils/prisma');
 const { authenticate, requireMember, requirePermission } = require('../middleware/auth');
-const { PERMISSIONS } = require('@team-hub/shared');
+const { PERMISSIONS } = require('../utils/constants');
 
 const router = express.Router();
 

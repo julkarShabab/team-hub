@@ -1,6 +1,6 @@
 const { verifyAccessToken } = require('../utils/jwt');
 const { prisma } = require('../utils/prisma');
-const { ROLE_PERMISSIONS } = require('@team-hub/shared');
+const { ROLE_PERMISSIONS } =  require('../utils/constants');
 
 // ─── Verify JWT ───────────────────────────────────────────────────────────────
 async function authenticate(req, res, next) {
