@@ -60,6 +60,18 @@ export default function DashboardLayout({ children }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchWorkspaces().then((ws) => {
+        if (ws?.length > 0) {
+          const savedId = localStorage.getItem("current_workspace_id");
+          const saved = ws.find((w) => w.id === savedId);
+          setCurrentWorkspace(saved || ws[0]);
+        }
+      });
+    }
+  }, [isAuthenticated]);
+
   const toggleDark = () => {
     const next = !darkMode;
     setDarkMode(next);
@@ -90,7 +102,6 @@ export default function DashboardLayout({ children }) {
     { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   ];
 
-  
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">

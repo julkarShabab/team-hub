@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const api = axios.create({
   baseURL: `${API_URL}/api`,
   withCredentials: true,
-  timeout: 15000,
+  timeout: 8000,
 });
 
 // Track if we're refreshing to avoid loops

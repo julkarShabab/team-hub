@@ -35,7 +35,7 @@ export default function GoalsPage() {
   const canCreate = ROLE_PERMISSIONS[myRole]?.includes(PERMISSIONS.CREATE_GOAL);
 
   useEffect(() => {
-    if (currentWorkspace?.id) {
+    if (currentWorkspace?.id && goals.length === 0) {
       fetchGoals(currentWorkspace.id);
     }
   }, [currentWorkspace?.id]);

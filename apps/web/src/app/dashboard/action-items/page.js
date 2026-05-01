@@ -34,7 +34,7 @@ export default function ActionItemsPage() {
   const [dragOver, setDragOver] = useState(null);
 
   useEffect(() => {
-    if (currentWorkspace?.id) {
+    if (currentWorkspace?.id && items.length === 0) {
       fetchItems(currentWorkspace.id);
     }
   }, [currentWorkspace?.id]);

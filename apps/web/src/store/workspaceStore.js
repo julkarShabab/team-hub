@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import api from '../lib/api';
-import toast from 'react-hot-toast';
+import { create } from "zustand";
+import api from "../lib/api";
+import toast from "react-hot-toast";
 
 const useWorkspaceStore = create((set, get) => ({
   workspaces: [],
@@ -11,7 +11,7 @@ const useWorkspaceStore = create((set, get) => ({
   fetchWorkspaces: async () => {
     set({ isLoading: true });
     try {
-      const res = await api.get('/workspaces');
+      const res = await api.get("/workspaces");
       set({ workspaces: res.data.workspaces, isLoading: false });
       return res.data.workspaces;
     } catch (err) {
@@ -20,7 +20,12 @@ const useWorkspaceStore = create((set, get) => ({
     }
   },
 
-  setCurrentWorkspace: (workspace) => set({ currentWorkspace: workspace }),
+  setCurrentWorkspace: (workspace) => {
+    if (typeof window !== "undefined" && workspace?.id) {
+      localStorage.setItem("current_workspace_id", workspace.id);
+    }
+    set({ currentWorkspace: workspace });
+  },
 
   fetchWorkspace: async (id) => {
     const res = await api.get(`/workspaces/${id}`);
@@ -32,7 +37,7 @@ const useWorkspaceStore = create((set, get) => ({
   },
 
   createWorkspace: async (data) => {
-    const res = await api.post('/workspaces', data);
+    const res = await api.post("/workspaces", data);
     const workspace = res.data.workspace;
     set((state) => ({ workspaces: [workspace, ...state.workspaces] }));
     return workspace;
@@ -42,10 +47,13 @@ const useWorkspaceStore = create((set, get) => ({
     // Optimistic update
     const prev = get().currentWorkspace;
     set((state) => ({
-      currentWorkspace: state.currentWorkspace?.id === id
-        ? { ...state.currentWorkspace, ...data }
-        : state.currentWorkspace,
-      workspaces: state.workspaces.map((w) => w.id === id ? { ...w, ...data } : w),
+      currentWorkspace:
+        state.currentWorkspace?.id === id
+          ? { ...state.currentWorkspace, ...data }
+          : state.currentWorkspace,
+      workspaces: state.workspaces.map((w) =>
+        w.id === id ? { ...w, ...data } : w,
+      ),
     }));
 
     try {
@@ -54,16 +62,20 @@ const useWorkspaceStore = create((set, get) => ({
     } catch (err) {
       // Rollback
       set((state) => ({
-        currentWorkspace: state.currentWorkspace?.id === id ? prev : state.currentWorkspace,
-        workspaces: state.workspaces.map((w) => w.id === id ? prev : w),
+        currentWorkspace:
+          state.currentWorkspace?.id === id ? prev : state.currentWorkspace,
+        workspaces: state.workspaces.map((w) => (w.id === id ? prev : w)),
       }));
-      toast.error('Failed to update workspace');
+      toast.error("Failed to update workspace");
       throw err;
     }
   },
 
-  inviteMember: async (workspaceId, email, role = 'MEMBER') => {
-    const res = await api.post(`/workspaces/${workspaceId}/invite`, { email, role });
+  inviteMember: async (workspaceId, email, role = "MEMBER") => {
+    const res = await api.post(`/workspaces/${workspaceId}/invite`, {
+      email,
+      role,
+    });
     if (res.data.member) {
       set((state) => ({ members: [...state.members, res.data.member] }));
     }
@@ -75,26 +87,30 @@ const useWorkspaceStore = create((set, get) => ({
     const prevMembers = get().members;
     set((state) => ({
       members: state.members.map((m) =>
-        m.userId === userId ? { ...m, role } : m
+        m.userId === userId ? { ...m, role } : m,
       ),
     }));
     try {
-      await api.put(`/workspaces/${workspaceId}/members/${userId}/role`, { role });
+      await api.put(`/workspaces/${workspaceId}/members/${userId}/role`, {
+        role,
+      });
     } catch (err) {
       set({ members: prevMembers });
-      toast.error('Failed to update role');
+      toast.error("Failed to update role");
       throw err;
     }
   },
 
   removeMember: async (workspaceId, userId) => {
     const prevMembers = get().members;
-    set((state) => ({ members: state.members.filter((m) => m.userId !== userId) }));
+    set((state) => ({
+      members: state.members.filter((m) => m.userId !== userId),
+    }));
     try {
       await api.delete(`/workspaces/${workspaceId}/members/${userId}`);
     } catch (err) {
       set({ members: prevMembers });
-      toast.error('Failed to remove member');
+      toast.error("Failed to remove member");
       throw err;
     }
   },
