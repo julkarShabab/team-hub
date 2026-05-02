@@ -8,7 +8,20 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Test connection on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('Email transporter error:', error.message);
+  } else {
+    console.log('Email transporter ready ✅');
+  }
+});
+
 const sendInvitationEmail = async ({ toEmail, workspaceName, inviterName, role }) => {
+  console.log('Sending invitation email to:', toEmail);
+  console.log('EMAIL_USER:', process.env.EMAIL_USER);
+  console.log('EMAIL_PASS set:', !!process.env.EMAIL_PASS);
+
   const mailOptions = {
     from: process.env.EMAIL_FROM,
     to: toEmail,
@@ -27,9 +40,6 @@ const sendInvitationEmail = async ({ toEmail, workspaceName, inviterName, role }
              style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 16px 0;">
             Accept Invitation
           </a>
-          <p style="color: #94a3b8; font-size: 14px; margin-top: 24px;">
-            If you don't have an account yet, you'll be asked to create one.
-          </p>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
           <p style="color: #94a3b8; font-size: 12px;">Team Hub — Collaborative Workspace</p>
         </div>
@@ -37,10 +47,14 @@ const sendInvitationEmail = async ({ toEmail, workspaceName, inviterName, role }
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  const result = await transporter.sendMail(mailOptions);
+  console.log('Email sent successfully:', result.messageId);
+  return result;
 };
 
 const sendMentionEmail = async ({ toEmail, mentionedByName, workspaceName, comment }) => {
+  console.log('Sending mention email to:', toEmail);
+
   const mailOptions = {
     from: process.env.EMAIL_FROM,
     to: toEmail,
@@ -69,7 +83,9 @@ const sendMentionEmail = async ({ toEmail, mentionedByName, workspaceName, comme
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  const result = await transporter.sendMail(mailOptions);
+  console.log('Mention email sent:', result.messageId);
+  return result;
 };
 
 module.exports = { sendInvitationEmail, sendMentionEmail };
