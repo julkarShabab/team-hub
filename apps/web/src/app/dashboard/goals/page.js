@@ -3,11 +3,8 @@ import { useEffect, useState } from "react";
 import {
   Plus,
   Target,
-  ChevronRight,
   Calendar,
-  MoreHorizontal,
   Trash2,
-  Edit3,
 } from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
@@ -27,14 +24,12 @@ const STATUS_CONFIG = {
 };
 
 export default function GoalsPage() {
-  const { currentWorkspace } = useWorkspaceStore();
+  const { currentWorkspace, members, fetchWorkspace } = useWorkspaceStore();
   const { goals, isLoading, fetchGoals, deleteGoal } = useGoalStore();
   const { user } = useAuthStore();
-  const { members } = useWorkspaceStore();
 
   const [showCreate, setShowCreate] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState(null);
-  const [editGoal, setEditGoal] = useState(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
 
   // Get user's role
@@ -47,6 +42,7 @@ export default function GoalsPage() {
   useEffect(() => {
     if (currentWorkspace?.id) {
       fetchGoals(currentWorkspace.id);
+      fetchWorkspace(currentWorkspace.id);
     }
   }, [currentWorkspace?.id]);
 
