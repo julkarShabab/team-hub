@@ -1,21 +1,29 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { Plus, Target, ChevronRight, Calendar, MoreHorizontal, Trash2, Edit3 } from 'lucide-react';
-import { format } from 'date-fns';
-import toast from 'react-hot-toast';
-import useWorkspaceStore from '../../../store/workspaceStore';
-import useGoalStore from '../../../store/goalStore';
-import useAuthStore from '../../../store/authStore';
-import Avatar from '../../../components/Avatar';
-import GoalModal from '../../../components/modals/GoalModal';
-import GoalDetailModal from '../../../components/modals/GoalDetailModal';
-import { PERMISSIONS, ROLE_PERMISSIONS } from '../../../lib/constants';
+"use client";
+import { useEffect, useState } from "react";
+import {
+  Plus,
+  Target,
+  ChevronRight,
+  Calendar,
+  MoreHorizontal,
+  Trash2,
+  Edit3,
+} from "lucide-react";
+import { format } from "date-fns";
+import toast from "react-hot-toast";
+import useWorkspaceStore from "../../../store/workspaceStore";
+import useGoalStore from "../../../store/goalStore";
+import useAuthStore from "../../../store/authStore";
+import Avatar from "../../../components/Avatar";
+import GoalModal from "../../../components/modals/GoalModal";
+import GoalDetailModal from "../../../components/modals/GoalDetailModal";
+import { PERMISSIONS, ROLE_PERMISSIONS } from "../../../lib/constants";
 
 const STATUS_CONFIG = {
-  ON_TRACK: { label: 'On Track', class: 'badge-success' },
-  AT_RISK: { label: 'At Risk', class: 'badge-warning' },
-  COMPLETED: { label: 'Completed', class: 'badge-info' },
-  CANCELLED: { label: 'Cancelled', class: 'badge-neutral' },
+  ON_TRACK: { label: "On Track", class: "badge-success" },
+  AT_RISK: { label: "At Risk", class: "badge-warning" },
+  COMPLETED: { label: "Completed", class: "badge-info" },
+  CANCELLED: { label: "Cancelled", class: "badge-neutral" },
 };
 
 export default function GoalsPage() {
@@ -27,15 +35,17 @@ export default function GoalsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [editGoal, setEditGoal] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterStatus, setFilterStatus] = useState("ALL");
 
   // Get user's role
-  const myMembership = members?.find((m) => m.userId === user?.id || m.user?.id === user?.id);
-  const myRole = myMembership?.role || 'MEMBER';
+  const myMembership = members?.find(
+    (m) => m.userId === user?.id || m.user?.id === user?.id,
+  );
+  const myRole = myMembership?.role || "MEMBER";
   const canCreate = ROLE_PERMISSIONS[myRole]?.includes(PERMISSIONS.CREATE_GOAL);
 
   useEffect(() => {
-    if (currentWorkspace?.id && goals.length === 0) {
+    if (currentWorkspace?.id) {
       fetchGoals(currentWorkspace.id);
     }
   }, [currentWorkspace?.id]);
@@ -45,13 +55,14 @@ export default function GoalsPage() {
     if (!confirm(`Delete "${goal.title}"?`)) return;
     try {
       await deleteGoal(goal.id);
-      toast.success('Goal deleted');
+      toast.success("Goal deleted");
     } catch {}
   };
 
-  const filtered = filterStatus === 'ALL'
-    ? goals
-    : goals.filter((g) => g.status === filterStatus);
+  const filtered =
+    filterStatus === "ALL"
+      ? goals
+      : goals.filter((g) => g.status === filterStatus);
 
   const getProgress = (goal) => {
     if (!goal.milestones?.length) return 0;
@@ -64,13 +75,18 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Goals</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Goals
+          </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            {goals.length} goal{goals.length !== 1 ? 's' : ''} in this workspace
+            {goals.length} goal{goals.length !== 1 ? "s" : ""} in this workspace
           </p>
         </div>
         {canCreate && (
-          <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
+          <button
+            onClick={() => setShowCreate(true)}
+            className="btn-primary flex items-center gap-2"
+          >
             <Plus size={16} /> New Goal
           </button>
         )}
@@ -78,18 +94,18 @@ export default function GoalsPage() {
 
       {/* Filters */}
       <div className="flex gap-2 mb-6 flex-wrap">
-        {['ALL', 'ON_TRACK', 'AT_RISK', 'COMPLETED', 'CANCELLED'].map((s) => (
+        {["ALL", "ON_TRACK", "AT_RISK", "COMPLETED", "CANCELLED"].map((s) => (
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
               filterStatus === s
-                ? 'bg-brand-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? "bg-brand-500 text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
             }`}
           >
-            {s === 'ALL' ? 'All' : STATUS_CONFIG[s]?.label}
-            {s !== 'ALL' && (
+            {s === "ALL" ? "All" : STATUS_CONFIG[s]?.label}
+            {s !== "ALL" && (
               <span className="ml-1.5 text-xs opacity-70">
                 ({goals.filter((g) => g.status === s).length})
               </span>
@@ -114,7 +130,10 @@ export default function GoalsPage() {
           <Target size={48} className="mx-auto mb-4 opacity-30" />
           <p className="font-medium">No goals yet</p>
           {canCreate && (
-            <button onClick={() => setShowCreate(true)} className="mt-3 btn-primary text-sm">
+            <button
+              onClick={() => setShowCreate(true)}
+              className="mt-3 btn-primary text-sm"
+            >
               Create your first goal
             </button>
           )}
@@ -123,14 +142,18 @@ export default function GoalsPage() {
         <div className="grid gap-4">
           {filtered.map((goal) => {
             const progress = getProgress(goal);
-            const statusCfg = STATUS_CONFIG[goal.status] || STATUS_CONFIG.ON_TRACK;
-            const isOverdue = goal.dueDate && new Date(goal.dueDate) < new Date() && goal.status !== 'COMPLETED';
+            const statusCfg =
+              STATUS_CONFIG[goal.status] || STATUS_CONFIG.ON_TRACK;
+            const isOverdue =
+              goal.dueDate &&
+              new Date(goal.dueDate) < new Date() &&
+              goal.status !== "COMPLETED";
 
             return (
               <div
                 key={goal.id}
                 onClick={() => setSelectedGoal(goal)}
-                className={`card p-5 cursor-pointer hover:shadow-md transition-all ${goal._optimistic ? 'opacity-60' : ''}`}
+                className={`card p-5 cursor-pointer hover:shadow-md transition-all ${goal._optimistic ? "opacity-60" : ""}`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -138,16 +161,20 @@ export default function GoalsPage() {
                       <Target size={16} className="text-brand-500" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 dark:text-white truncate">{goal.title}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                        {goal.title}
+                      </h3>
                       {goal.description && (
-                        <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{goal.description}</p>
+                        <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">
+                          {goal.description}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 ml-3 flex-shrink-0">
                     <span className={statusCfg.class}>{statusCfg.label}</span>
-                    {myRole === 'ADMIN' && (
+                    {myRole === "ADMIN" && (
                       <button
                         onClick={(e) => handleDelete(goal, e)}
                         className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -162,7 +189,10 @@ export default function GoalsPage() {
                 {goal.milestones?.length > 0 && (
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                      <span>{goal.milestones.length} milestone{goal.milestones.length !== 1 ? 's' : ''}</span>
+                      <span>
+                        {goal.milestones.length} milestone
+                        {goal.milestones.length !== 1 ? "s" : ""}
+                      </span>
                       <span>{progress}%</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -183,9 +213,11 @@ export default function GoalsPage() {
                     )}
                   </div>
                   {goal.dueDate && (
-                    <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-500' : ''}`}>
+                    <div
+                      className={`flex items-center gap-1 ${isOverdue ? "text-red-500" : ""}`}
+                    >
                       <Calendar size={12} />
-                      <span>{format(new Date(goal.dueDate), 'MMM d')}</span>
+                      <span>{format(new Date(goal.dueDate), "MMM d")}</span>
                     </div>
                   )}
                 </div>
