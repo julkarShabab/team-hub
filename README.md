@@ -346,6 +346,6 @@ This project demonstrates:
 ## Author
 
 Developed by **Julkar Niene**  
-GitHub: https://github.com/julkarShabab
-LinkedIN: https://www.linkedin.com/in/julkar-niene
+GitHub: https://github.com/julkarShabab<br>
+LinkedIN: https://www.linkedin.com/in/julkar-niene<br>
 Portfolio: https://julkar-portfolio.vercel.app
