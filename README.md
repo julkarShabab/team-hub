@@ -1,188 +1,351 @@
-# Team Hub — FredoCloud Technical Assessment
+# Team Hub — Collaborative Workspace Platform
 
-A full-stack collaborative workspace application built with a Turborepo monorepo.
-
-## Advanced Features Implemented
-
-### ✅ Feature 2 — Optimistic UI
-Actions reflect instantly in the UI before server confirmation, with graceful rollback on error.
-
-**How it works:**
-- `goalStore.js`: Creates a temporary goal (UUID prefixed with `temp-`) and inserts it immediately into state. On server success, the temp ID is swapped for the real one. On failure, the item is removed and a toast shows the error.
-- `actionItemStore.js`: Kanban drag-and-drop status updates fire `updateItemStatus()` which moves the card instantly — no waiting for the server.
-- `workspaceStore.js`: Role changes and member removals update the list immediately, then rollback silently on failure.
-
-**Where to see it:** Drag a card between Kanban columns — it snaps instantly. Create a goal — it appears before the network round-trip completes.
-
-### ✅ Feature 4 — Advanced RBAC
-A permission matrix controls which roles can perform which actions across the entire stack.
-
-**How it works:**
-- `packages/shared/index.js`: Defines `ROLES`, `PERMISSIONS`, and `ROLE_PERMISSIONS` (the matrix). This is the single source of truth, shared by both frontend and backend.
-- `apps/api/src/middleware/auth.js`: `requirePermission(PERMISSION)` middleware looks up the user's role in the workspace and checks the matrix before allowing any write operation.
-- Frontend: Components check `ROLE_PERMISSIONS[myRole].includes(PERMISSION)` to conditionally render buttons (e.g. "Post Announcement" only shown to Admins).
-
-**Where to see it:** Log in as `bob@demo.com` (Member) — the "Post Announcement" button is hidden. Log in as `alice@demo.com` (Admin) — full access.
+A full-stack collaborative workspace application built for the **FredoCloud Technical Assessment**.  
+Team Hub helps teams manage workspaces, goals, action items, announcements, members, permissions, and real-time collaboration from one dashboard.
 
 ---
 
-## Tech Stack
+## Live Demo
 
-| Layer | Technology |
+| Service | URL |
 |---|---|
-| Monorepo | Turborepo + npm workspaces |
-| Frontend | Next.js 14 (App Router), Tailwind CSS, Zustand |
-| Backend | Node.js + Express |
-| Database | PostgreSQL + Prisma ORM |
-| Auth | JWT (httpOnly cookies, refresh token rotation) |
-| Real-time | Socket.io |
-| File uploads | Cloudinary |
-| Charts | Recharts |
-
----
-
-## Project Structure
-
-```
-team-hub/
-├── apps/
-│   ├── api/               # Express backend
-│   │   ├── prisma/        # Schema + seed
-│   │   └── src/
-│   │       ├── middleware/ # auth.js — RBAC lives here
-│   │       ├── routes/    # All API endpoints
-│   │       └── utils/     # jwt, prisma, cloudinary
-│   └── web/               # Next.js frontend
-│       └── src/
-│           ├── app/       # App Router pages
-│           ├── components/ # Reusable UI + modals
-│           ├── hooks/     # useSocket
-│           ├── lib/       # axios instance
-│           └── store/     # Zustand stores (optimistic UI)
-└── packages/
-    └── shared/            # Constants, RBAC matrix (shared)
-```
-
----
-
-## Setup & Local Development
-
-### Prerequisites
-- Node.js 18+
-- PostgreSQL database
-- Cloudinary account (free tier works)
-
-### 1. Clone & Install
-```bash
-git clone <repo-url>
-cd team-hub
-npm install
-```
-
-### 2. Configure environment variables
-
-**Backend** (`apps/api/.env`):
-```bash
-cp apps/api/.env.example apps/api/.env
-# Fill in DATABASE_URL, JWT secrets, Cloudinary credentials
-```
-
-**Frontend** (`apps/web/.env.local`):
-```bash
-cp apps/web/.env.example apps/web/.env.local
-# Default: NEXT_PUBLIC_API_URL=http://localhost:4000
-```
-
-### 3. Run database migrations & seed
-```bash
-cd apps/api
-npx prisma migrate dev --name init
-node prisma/seed.js
-```
-
-### 4. Start development servers
-```bash
-# From root — starts both API and web in parallel
-npm run dev
-```
-
-- **Frontend:** http://localhost:3000
-- **Backend:** http://localhost:4000
-- **Prisma Studio:** `cd apps/api && npx prisma studio`
+| Frontend | https://team-hub-frontend.up.railway.app |
+| Backend API | https://team-hub-production-6ffe.up.railway.app |
+| API Documentation | https://team-hub-production-6ffe.up.railway.app/api/docs |
 
 ---
 
 ## Demo Accounts
 
-| Email | Password | Role |
+| Role | Email | Password |
 |---|---|---|
-| alice@demo.com | Demo1234! | Admin |
-| bob@demo.com | Demo1234! | Member |
-| carol@demo.com | Demo1234! | Member |
+| Admin | `alice@demo.com` | `Demo1234!` |
+| Member | `bob@demo.com` | `Demo1234!` |
+| Member | `carol@demo.com` | `Demo1234!` |
+
+---
+
+## Overview
+
+Team Hub is a modern workspace management system where teams can create workspaces, track goals, manage action items, post announcements, invite members, and control access through role-based permissions.
+
+The project is built as a **Turborepo monorepo** with a Next.js frontend, Express backend, PostgreSQL database, Prisma ORM, Socket.io real-time updates, Cloudinary file handling, Resend email notifications, and JWT authentication.
+
+---
+
+## Core Features
+
+### Workspace Management
+
+- Create and manage collaborative workspaces
+- Invite members through email
+- View workspace analytics and activity
+- Export workspace data as CSV
+
+### Goals & Milestones
+
+- Create workspace goals
+- Add milestones under each goal
+- Track milestone progress
+- Post progress updates
+- Cancel, reopen, or complete goals based on permissions
+
+### Action Items
+
+- Kanban-style task management
+- Drag-and-drop status updates
+- Instant optimistic UI updates
+- Real-time task changes with Socket.io
+
+### Announcements
+
+- Post workspace announcements
+- Admin-only announcement controls
+- Pin important announcements
+- Real-time announcement updates
+
+### Members & Permissions
+
+- Role-based access control
+- Admin and Member role support
+- Permission matrix visible inside the app
+- Protected backend routes using RBAC middleware
+
+---
+
+## Advanced Features Implemented
+
+### Optimistic UI
+
+Actions are reflected instantly in the interface before the server response arrives. If the request fails, the UI rolls back safely and displays an error toast.
+
+**Implemented in:**
+
+| File | Behavior |
+|---|---|
+| `goalStore.js` | Creates temporary goals with `temp-` IDs before server confirmation |
+| `actionItemStore.js` | Moves Kanban cards instantly during drag-and-drop |
+| `workspaceStore.js` | Updates member roles/removals immediately with rollback support |
+
+**Where to test:**  
+Drag an action item between Kanban columns or create a new goal. The UI updates instantly without waiting for the network request to finish.
+
+---
+
+### Advanced RBAC
+
+The application uses a centralized permission matrix to control access across both frontend and backend.
+
+**Implemented in:**
+
+| Layer | File | Purpose |
+|---|---|---|
+| Shared Constants | `utils/constants.js` | Defines roles, permissions, and permission matrix |
+| Backend | `apps/api/src/middleware/auth.js` | Protects routes using `requirePermission()` |
+| Frontend | Components + stores | Conditionally renders buttons and actions |
+
+**Where to test:**
+
+- Login as `bob@demo.com`  
+  Member users have limited access.
+- Login as `alice@demo.com`  
+  Admin users can manage members, roles, announcements, and workspace settings.
+- Visit the Members page to view the permission matrix.
+
+---
+
+## Permission Matrix
+
+| Permission | Admin | Member |
+|---|---:|---:|
+| Create Goals | ✅ | ✅ |
+| Edit Goals | ✅ | ✅ |
+| Delete Goals | ✅ | ❌ |
+| Post Announcements | ✅ | ❌ |
+| Pin Announcements | ✅ | ❌ |
+| Invite Members | ✅ | ❌ |
+| Remove Members | ✅ | ❌ |
+| Change Roles | ✅ | ❌ |
+| Edit Workspace | ✅ | ❌ |
+| Export Data | ✅ | ✅ |
+
+---
+
+## Bonus Features
+
+| Feature | Status |
+|---|---:|
+| Dark / Light Theme | ✅ |
+| Email Notifications with Resend | ✅ |
+| Keyboard Shortcuts | ✅ |
+| Command Palette `Ctrl + K` | ✅ |
+| Swagger / OpenAPI Docs | ✅ |
+| Real-time Socket.io Updates | ✅ |
+| Cloudinary File Uploads | ✅ |
+| Unit & Integration Tests | ❌ |
+| PWA Support | ❌ |
+
+---
+
+## Tech Stack
+
+| Area | Technology |
+|---|---|
+| Monorepo | Turborepo |
+| Frontend | Next.js 14 App Router |
+| Language | JavaScript |
+| Styling | Tailwind CSS |
+| State Management | Zustand |
+| Backend | Node.js, Express.js |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Authentication | JWT Access Token + Refresh Token |
+| Cookies | httpOnly Secure Cookies |
+| Real-time | Socket.io |
+| File Storage | Cloudinary |
+| Email Service | Resend |
+| API Docs | Swagger / OpenAPI |
+| Deployment | Railway |
+
+---
+
+## Project Structure
+
+```txt
+team-hub/
+├── apps/
+│   ├── api/                         # Express backend
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma        # Database schema
+│   │   │   └── seed.js              # Demo data seeder
+│   │   └── src/
+│   │       ├── middleware/
+│   │       │   └── auth.js          # JWT + RBAC middleware
+│   │       ├── routes/              # API routes
+│   │       ├── swagger.js           # Swagger/OpenAPI config
+│   │       └── utils/
+│   │           ├── email.js         # Resend email integration
+│   │           └── constants.js     # RBAC permission matrix
+│   │
+│   └── web/                         # Next.js frontend
+│       └── src/
+│           ├── app/                 # App Router pages
+│           ├── components/          # Reusable components and modals
+│           ├── hooks/
+│           │   └── useSocket.js     # Socket.io client hook
+│           ├── lib/
+│           │   └── constants.js     # Frontend RBAC constants
+│           └── store/               # Zustand stores
+│
+└── packages/
+    └── shared/                      # Shared constants package
+```
+
+---
+
+## Local Development Setup
+
+### Prerequisites
+
+Make sure you have the following installed or configured:
+
+- Node.js 18+
+- PostgreSQL database
+- Cloudinary account
+- Resend account
+
+---
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/julkarShabab/team-hub.git
+cd team-hub
+```
+
+---
+
+### 2. Install Dependencies
+
+```bash
+npm install --legacy-peer-deps
+```
+
+---
+
+### 3. Configure Environment Variables
+
+Create a `.env` file inside `apps/api`.
+
+```env
+DATABASE_URL=postgresql://...
+
+JWT_ACCESS_SECRET=your-access-secret
+JWT_REFRESH_SECRET=your-refresh-secret
+
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+CLIENT_URL=http://localhost:3000
+PORT=4000
+NODE_ENV=development
+
+RESEND_API_KEY=your-resend-api-key
+```
+
+Create a `.env.local` file inside `apps/web`.
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
+```
+
+---
+
+### 4. Set Up the Database
+
+```bash
+cd apps/api
+npx prisma generate
+npx prisma migrate dev --name init
+node prisma/seed.js
+cd ../..
+```
+
+---
+
+### 5. Start the Development Server
+
+```bash
+npm run dev
+```
+
+Local URLs:
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend | http://localhost:4000 |
+| API Docs | http://localhost:4000/api/docs |
 
 ---
 
 ## Key API Endpoints
 
-### Auth
-- `POST /api/auth/register` — Register
-- `POST /api/auth/login` — Login
-- `POST /api/auth/refresh` — Refresh access token
-- `POST /api/auth/logout` — Logout
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register a new user |
+| `POST` | `/api/auth/login` | Login user |
+| `POST` | `/api/auth/refresh` | Refresh access token |
+| `GET` | `/api/workspaces` | Get user workspaces |
+| `POST` | `/api/workspaces` | Create workspace |
+| `POST` | `/api/workspaces/:id/invite` | Invite member |
+| `GET` | `/api/goals/workspace/:id` | Get workspace goals |
+| `POST` | `/api/goals/workspace/:id` | Create goal |
+| `GET` | `/api/action-items/workspace/:id` | Get action items |
+| `POST` | `/api/announcements/workspace/:id` | Post announcement |
+| `GET` | `/api/analytics/workspace/:id` | Get workspace analytics |
+| `GET` | `/api/workspaces/:id/export` | Export workspace data |
 
-### Workspaces
-- `GET /api/workspaces` — List my workspaces
-- `POST /api/workspaces` — Create workspace
-- `POST /api/workspaces/:id/invite` — Invite member (Admin only)
-- `PUT /api/workspaces/:id/members/:userId/role` — Change role (Admin only)
-- `GET /api/workspaces/:id/export` — Export CSV
+Full API documentation is available at:
 
-### Goals
-- `GET /api/goals/workspace/:id` — List goals
-- `POST /api/goals/workspace/:id` — Create (Members+)
-- `PUT /api/goals/:id` — Update (Members+)
-- `DELETE /api/goals/:id` — Delete (Admin only)
-- `POST /api/goals/:id/milestones` — Add milestone
-- `PUT /api/goals/:id/milestones/:mid` — Update milestone
-- `POST /api/goals/:id/progress` — Post update
-
-### Action Items
-- `GET /api/action-items/workspace/:id` — List (filterable)
-- `POST /api/action-items/workspace/:id` — Create
-- `PUT /api/action-items/:id` — Update (with status change for Kanban)
-- `DELETE /api/action-items/:id` — Delete
-
-### Announcements
-- `GET /api/announcements/workspace/:id` — List
-- `POST /api/announcements/workspace/:id` — Post (Admin only)
-- `PUT /api/announcements/:id/pin` — Pin/unpin (Admin only)
-- `POST /api/announcements/:id/react` — React with emoji
-- `POST /api/announcements/:id/comments` — Comment (@mention support)
-
-### Analytics
-- `GET /api/analytics/workspace/:id` — Stats + charts data
-
----
-
-## Deployment (Railway)
-
-1. Create a new Railway project
-2. Add a **PostgreSQL** database service
-3. Add the **API** service pointing to `apps/api/`
-4. Set all env vars in Railway dashboard
-5. Deploy — `railway.json` handles migrations automatically
-
-For the frontend, deploy to **Vercel**:
-```bash
-cd apps/web
-vercel --prod
+```txt
+/api/docs
 ```
 
 ---
 
 ## Known Limitations
 
-- Email invitations send a record to DB but don't send actual emails (would need nodemailer + SMTP configured)
-- Real-time cursor sharing not implemented (would need Y.js)
-- File attachments on action items UI not implemented (backend Cloudinary upload route exists)
-- No pagination on long lists (acceptable for demo scale)
+- Email invitations use Resend free tier, so sending may be limited without a verified domain.
+- Socket.io presence tracking resets when the page refreshes.
+- Long lists currently do not have pagination.
+- PWA support is not implemented.
+- Unit and integration tests are not implemented.
+
+---
+
+## Assessment Highlights
+
+This project demonstrates:
+
+- Full-stack monorepo architecture
+- Clean REST API design
+- JWT authentication with refresh tokens
+- Secure httpOnly cookie-based auth
+- Role-based access control
+- Optimistic UI updates
+- Real-time collaboration with Socket.io
+- Prisma-based relational database modeling
+- Swagger API documentation
+- Production deployment on Railway
+
+---
+
+## Author
+
+Developed by **Julkar Niene**  
+GitHub: https://github.com/julkarShabab
+LinkedIN: https://www.linkedin.com/in/julkar-niene
+Portfolio: https://julkar-portfolio.vercel.app
