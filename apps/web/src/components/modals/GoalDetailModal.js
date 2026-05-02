@@ -40,6 +40,7 @@ export default function GoalDetailModal({
   const [statusAction, setStatusAction] = useState(null);
 
   const canEdit = ROLE_PERMISSIONS[userRole]?.includes(PERMISSIONS.EDIT_GOAL);
+  const isAdmin = userRole === 'ADMIN';
   const liveStatus = useGoalStore((s) => s.currentGoal?.status);
 
   useEffect(() => {
@@ -167,9 +168,9 @@ export default function GoalDetailModal({
             )}
           </div>
 
+          
           {/* Cancel / Reopen button */}
-          {/* Cancel / Reopen button */}
-          {canEdit && (
+          {isAdmin && (
             <div className="flex gap-2">
               {(() => {
                 const isCancelling = statusUpdating
