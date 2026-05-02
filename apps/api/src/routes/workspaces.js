@@ -188,6 +188,21 @@ router.post(
         },
       });
 
+      // Send invitation email
+      try {
+        const workspace = await prisma.workspace.findUnique({
+          where: { id: req.workspaceId },
+        });
+        await sendInvitationEmail({
+          toEmail: email,
+          workspaceName: workspace.name,
+          inviterName: req.user.name,
+          role,
+        });
+      } catch (emailErr) {
+        console.error("Email send failed:", emailErr.message);
+      }
+
       res.json({ invitation, message: "Invitation created" });
     } catch (err) {
       next(err);
