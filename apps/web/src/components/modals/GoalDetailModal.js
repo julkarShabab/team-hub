@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CheckCircle, Circle, Plus, Edit3, TrendingUp } from "lucide-react";
+import { CheckCircle, Circle, Plus, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 import Modal from "../Modal";
@@ -16,11 +16,7 @@ const STATUS_CONFIG = {
   CANCELLED: { label: "Cancelled", class: "badge-neutral" },
 };
 
-export default function GoalDetailModal({
-  goalId,
-  onClose,
-  userRole = "MEMBER",
-}) {
+export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }) {
   const {
     currentGoal,
     fetchGoal,
@@ -30,17 +26,33 @@ export default function GoalDetailModal({
     updateGoal,
   } = useGoalStore();
   const { user } = useAuthStore();
+
   const [progressInput, setProgressInput] = useState("");
   const [newMilestone, setNewMilestone] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showMilestoneInput, setShowMilestoneInput] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   const canEdit = ROLE_PERMISSIONS[userRole]?.includes(PERMISSIONS.EDIT_GOAL);
+  const liveStatus = useGoalStore((s) => s.currentGoal?.status);
 
   useEffect(() => {
     fetchGoal(goalId).finally(() => setLoading(false));
   }, [goalId]);
+
+  const handleStatusToggle = async () => {
+    if (statusUpdating) return;
+    setStatusUpdating(true);
+    try {
+      const newStatus = liveStatus !== "CANCELLED" ? "CANCELLED" : "ON_TRACK";
+      await updateGoal(goalId, { status: newStatus });
+    } catch {
+      toast.error("Failed to update goal status");
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
 
   const handleMilestoneToggle = async (milestone) => {
     if (!canEdit) return;
@@ -53,7 +65,6 @@ export default function GoalDetailModal({
         progress: newProgress,
       });
 
-      // Check all milestones after this update
       const updatedMilestones = useGoalStore
         .getState()
         .currentGoal?.milestones?.map((m) =>
@@ -63,17 +74,11 @@ export default function GoalDetailModal({
         );
 
       const allDone = updatedMilestones?.every((m) => m.completed);
-      const noneDone = updatedMilestones?.every((m) => !m.completed);
       const currentStatus = useGoalStore.getState().currentGoal?.status;
 
       if (allDone) {
-        // All milestones done → auto complete
         await updateGoal(goalId, { status: "COMPLETED" });
-      } else if (noneDone && currentStatus === "COMPLETED") {
-        // All milestones unchecked → revert to ON_TRACK
-        await updateGoal(goalId, { status: "ON_TRACK" });
       } else if (!allDone && currentStatus === "COMPLETED") {
-        // Some unchecked → revert to ON_TRACK
         await updateGoal(goalId, { status: "ON_TRACK" });
       }
     } catch {}
@@ -128,24 +133,48 @@ export default function GoalDetailModal({
   }
 
   if (!currentGoal) return null;
+
   const statusCfg = STATUS_CONFIG[currentGoal.status] || STATUS_CONFIG.ON_TRACK;
 
   return (
     <Modal title={currentGoal.title} onClose={onClose} size="lg">
       <div className="p-5 space-y-6">
         {/* Meta row */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className={statusCfg.class}>{statusCfg.label}</span>
-          <div className="flex items-center gap-2">
-            <Avatar user={currentGoal.owner} size="xs" />
-            <span className="text-sm text-gray-500">
-              {currentGoal.owner?.name}
-            </span>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className={statusCfg.class}>{statusCfg.label}</span>
+            <div className="flex items-center gap-2">
+              <Avatar user={currentGoal.owner} size="xs" />
+              <span className="text-sm text-gray-500">{currentGoal.owner?.name}</span>
+            </div>
+            {currentGoal.dueDate && (
+              <span className="text-sm text-gray-400">
+                Due {format(new Date(currentGoal.dueDate), "MMM d, yyyy")}
+              </span>
+            )}
           </div>
-          {currentGoal.dueDate && (
-            <span className="text-sm text-gray-400">
-              Due {format(new Date(currentGoal.dueDate), "MMM d, yyyy")}
-            </span>
+
+          {/* Cancel / Reopen button */}
+          {canEdit && (
+            <div className="flex gap-2">
+              {liveStatus !== "CANCELLED" ? (
+                <button
+                  onClick={handleStatusToggle}
+                  disabled={statusUpdating}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors border border-red-200 dark:border-red-800 disabled:opacity-50"
+                >
+                  {statusUpdating ? "Cancelling..." : "Cancel Goal"}
+                </button>
+              ) : (
+                <button
+                  onClick={handleStatusToggle}
+                  disabled={statusUpdating}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors border border-green-200 dark:border-green-800 disabled:opacity-50"
+                >
+                  {statusUpdating ? "Reopening..." : "Reopen Goal"}
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -163,9 +192,7 @@ export default function GoalDetailModal({
               <span className="font-medium text-gray-700 dark:text-gray-300">
                 Overall Progress
               </span>
-              <span className="font-bold text-brand-500">
-                {overallProgress}%
-              </span>
+              <span className="font-bold text-brand-500">{overallProgress}%</span>
             </div>
             <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div
@@ -179,9 +206,7 @@ export default function GoalDetailModal({
         {/* Milestones */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              Milestones
-            </h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Milestones</h3>
             {canEdit && (
               <button
                 onClick={() => setShowMilestoneInput(!showMilestoneInput)}
@@ -202,10 +227,7 @@ export default function GoalDetailModal({
                 onKeyDown={(e) => e.key === "Enter" && handleAddMilestone()}
                 autoFocus
               />
-              <button
-                onClick={handleAddMilestone}
-                className="btn-primary text-sm px-3"
-              >
+              <button onClick={handleAddMilestone} className="btn-primary text-sm px-3">
                 Add
               </button>
             </div>
@@ -214,17 +236,11 @@ export default function GoalDetailModal({
           <div className="space-y-3">
             {currentGoal.milestones?.map((m) => (
               <div key={m.id} className="flex items-center gap-3">
-                <button
-                  onClick={() => handleMilestoneToggle(m)}
-                  disabled={!canEdit}
-                >
+                <button onClick={() => handleMilestoneToggle(m)} disabled={!canEdit}>
                   {m.completed ? (
                     <CheckCircle size={18} className="text-green-500" />
                   ) : (
-                    <Circle
-                      size={18}
-                      className="text-gray-300 dark:text-gray-600"
-                    />
+                    <Circle size={18} className="text-gray-300 dark:text-gray-600" />
                   )}
                 </button>
                 <span
@@ -240,25 +256,17 @@ export default function GoalDetailModal({
                       max="100"
                       step="5"
                       value={m.progress}
-                      onChange={(e) =>
-                        handleMilestoneProgress(m, e.target.value)
-                      }
+                      onChange={(e) => handleMilestoneProgress(m, e.target.value)}
                       className="w-24 accent-brand-500"
                     />
-                    <span className="text-xs text-gray-400 w-8">
-                      {m.progress}%
-                    </span>
+                    <span className="text-xs text-gray-400 w-8">{m.progress}%</span>
                   </div>
                 )}
-                {m.completed && (
-                  <span className="text-xs text-green-500">Done</span>
-                )}
+                {m.completed && <span className="text-xs text-green-500">Done</span>}
               </div>
             ))}
             {!currentGoal.milestones?.length && (
-              <p className="text-sm text-gray-400 text-center py-3">
-                No milestones yet
-              </p>
+              <p className="text-sm text-gray-400 text-center py-3">No milestones yet</p>
             )}
           </div>
         </div>
@@ -301,9 +309,7 @@ export default function GoalDetailModal({
                       {format(new Date(u.createdAt), "MMM d")}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {u.content}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{u.content}</p>
                 </div>
               </div>
             ))}
