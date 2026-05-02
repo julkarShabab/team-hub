@@ -16,7 +16,11 @@ const STATUS_CONFIG = {
   CANCELLED: { label: "Cancelled", class: "badge-neutral" },
 };
 
-export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }) {
+export default function GoalDetailModal({
+  goalId,
+  onClose,
+  userRole = "MEMBER",
+}) {
   const {
     currentGoal,
     fetchGoal,
@@ -33,6 +37,7 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
   const [submitting, setSubmitting] = useState(false);
   const [showMilestoneInput, setShowMilestoneInput] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
+  const [statusAction, setStatusAction] = useState(null);
 
   const canEdit = ROLE_PERMISSIONS[userRole]?.includes(PERMISSIONS.EDIT_GOAL);
   const liveStatus = useGoalStore((s) => s.currentGoal?.status);
@@ -43,14 +48,20 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
 
   const handleStatusToggle = async () => {
     if (statusUpdating) return;
+
+    const action = liveStatus !== "CANCELLED" ? "cancel" : "reopen";
+    const newStatus = action === "cancel" ? "CANCELLED" : "ON_TRACK";
+
+    setStatusAction(action);
     setStatusUpdating(true);
+
     try {
-      const newStatus = liveStatus !== "CANCELLED" ? "CANCELLED" : "ON_TRACK";
       await updateGoal(goalId, { status: newStatus });
     } catch {
       toast.error("Failed to update goal status");
     } finally {
       setStatusUpdating(false);
+      setStatusAction(null);
     }
   };
 
@@ -145,7 +156,9 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
             <span className={statusCfg.class}>{statusCfg.label}</span>
             <div className="flex items-center gap-2">
               <Avatar user={currentGoal.owner} size="xs" />
-              <span className="text-sm text-gray-500">{currentGoal.owner?.name}</span>
+              <span className="text-sm text-gray-500">
+                {currentGoal.owner?.name}
+              </span>
             </div>
             {currentGoal.dueDate && (
               <span className="text-sm text-gray-400">
@@ -155,25 +168,39 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
           </div>
 
           {/* Cancel / Reopen button */}
+          {/* Cancel / Reopen button */}
           {canEdit && (
             <div className="flex gap-2">
-              {liveStatus !== "CANCELLED" ? (
-                <button
-                  onClick={handleStatusToggle}
-                  disabled={statusUpdating}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors border border-red-200 dark:border-red-800 disabled:opacity-50"
-                >
-                  {statusUpdating ? "Cancelling..." : "Cancel Goal"}
-                </button>
-              ) : (
-                <button
-                  onClick={handleStatusToggle}
-                  disabled={statusUpdating}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors border border-green-200 dark:border-green-800 disabled:opacity-50"
-                >
-                  {statusUpdating ? "Reopening..." : "Reopen Goal"}
-                </button>
-              )}
+              {(() => {
+                const isCancelling = statusUpdating
+                  ? statusAction === "cancel"
+                  : liveStatus !== "CANCELLED";
+
+                const buttonText = statusUpdating
+                  ? isCancelling
+                    ? "Cancelling..."
+                    : "Reopening..."
+                  : isCancelling
+                    ? "Cancel Goal"
+                    : "Reopen Goal";
+
+                const baseClass =
+                  "text-xs px-3 py-1.5 rounded-lg transition-colors border disabled:opacity-50";
+
+                const colorClass = isCancelling
+                  ? "bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 border-red-200 dark:border-red-800"
+                  : "bg-green-50 dark:bg-green-900/20 text-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 border-green-200 dark:border-green-800";
+
+                return (
+                  <button
+                    onClick={handleStatusToggle}
+                    disabled={statusUpdating}
+                    className={`${baseClass} ${colorClass}`}
+                  >
+                    {buttonText}
+                  </button>
+                );
+              })()}
             </div>
           )}
         </div>
@@ -192,7 +219,9 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
               <span className="font-medium text-gray-700 dark:text-gray-300">
                 Overall Progress
               </span>
-              <span className="font-bold text-brand-500">{overallProgress}%</span>
+              <span className="font-bold text-brand-500">
+                {overallProgress}%
+              </span>
             </div>
             <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div
@@ -206,7 +235,9 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
         {/* Milestones */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Milestones</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              Milestones
+            </h3>
             {canEdit && (
               <button
                 onClick={() => setShowMilestoneInput(!showMilestoneInput)}
@@ -227,7 +258,10 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
                 onKeyDown={(e) => e.key === "Enter" && handleAddMilestone()}
                 autoFocus
               />
-              <button onClick={handleAddMilestone} className="btn-primary text-sm px-3">
+              <button
+                onClick={handleAddMilestone}
+                className="btn-primary text-sm px-3"
+              >
                 Add
               </button>
             </div>
@@ -236,11 +270,17 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
           <div className="space-y-3">
             {currentGoal.milestones?.map((m) => (
               <div key={m.id} className="flex items-center gap-3">
-                <button onClick={() => handleMilestoneToggle(m)} disabled={!canEdit}>
+                <button
+                  onClick={() => handleMilestoneToggle(m)}
+                  disabled={!canEdit}
+                >
                   {m.completed ? (
                     <CheckCircle size={18} className="text-green-500" />
                   ) : (
-                    <Circle size={18} className="text-gray-300 dark:text-gray-600" />
+                    <Circle
+                      size={18}
+                      className="text-gray-300 dark:text-gray-600"
+                    />
                   )}
                 </button>
                 <span
@@ -256,17 +296,25 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
                       max="100"
                       step="5"
                       value={m.progress}
-                      onChange={(e) => handleMilestoneProgress(m, e.target.value)}
+                      onChange={(e) =>
+                        handleMilestoneProgress(m, e.target.value)
+                      }
                       className="w-24 accent-brand-500"
                     />
-                    <span className="text-xs text-gray-400 w-8">{m.progress}%</span>
+                    <span className="text-xs text-gray-400 w-8">
+                      {m.progress}%
+                    </span>
                   </div>
                 )}
-                {m.completed && <span className="text-xs text-green-500">Done</span>}
+                {m.completed && (
+                  <span className="text-xs text-green-500">Done</span>
+                )}
               </div>
             ))}
             {!currentGoal.milestones?.length && (
-              <p className="text-sm text-gray-400 text-center py-3">No milestones yet</p>
+              <p className="text-sm text-gray-400 text-center py-3">
+                No milestones yet
+              </p>
             )}
           </div>
         </div>
@@ -309,7 +357,9 @@ export default function GoalDetailModal({ goalId, onClose, userRole = "MEMBER" }
                       {format(new Date(u.createdAt), "MMM d")}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{u.content}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {u.content}
+                  </p>
                 </div>
               </div>
             ))}
