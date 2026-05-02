@@ -17,17 +17,19 @@ import {
   Moon,
   Sun,
   Bell,
+  Search,
 } from "lucide-react";
 import useAuthStore from "../../store/authStore";
 import useWorkspaceStore from "../../store/workspaceStore";
 import { useSocket } from "../../hooks/useSocket";
 import Avatar from "../../components/Avatar";
 import CreateWorkspaceModal from "../../components/modals/CreateWorkspaceModal";
-import CommandPalette from '../../components/CommandPalette';
+import CommandPalette from "../../components/CommandPalette";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { user, isLoading, refreshUser, logout, isAuthenticated } =
     useAuthStore();
   const { workspaces, currentWorkspace, fetchWorkspaces, setCurrentWorkspace } =
@@ -190,8 +192,29 @@ export default function DashboardLayout({ children }) {
           )}
         </div>
 
+        
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+          {/* Search / Command Palette trigger */}
+          {sidebarOpen && (
+            <button
+              onClick={() => {
+                const e = new KeyboardEvent("keydown", {
+                  key: "k",
+                  ctrlKey: true,
+                  bubbles: true,
+                });
+                window.dispatchEvent(e);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2 mb-2 rounded-lg text-sm text-gray-400 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
+            >
+              <Search size={14} />
+              <span className="flex-1 text-left">Search...</span>
+              <kbd className="text-xs bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-1.5 py-0.5 font-mono">
+                ⌘K
+              </kbd>
+            </button>
+          )}
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (

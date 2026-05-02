@@ -1,17 +1,35 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { Target, CheckSquare, AlertTriangle, TrendingUp, Users, Activity } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import useWorkspaceStore from '../../store/workspaceStore';
-import api from '../../lib/api';
-import Avatar from '../../components/Avatar';
-import { format } from 'date-fns';
+"use client";
+import { useEffect, useState } from "react";
+import {
+  Target,
+  CheckSquare,
+  AlertTriangle,
+  TrendingUp,
+  Users,
+  Activity,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import useWorkspaceStore from "../../store/workspaceStore";
+import api from "../../lib/api";
+import Avatar from "../../components/Avatar";
+import { format } from "date-fns";
 
 const STATUS_COLORS = {
-  ON_TRACK: '#22c55e',
-  AT_RISK: '#f59e0b',
-  COMPLETED: '#6366f1',
-  CANCELLED: '#94a3b8',
+  ON_TRACK: "#22c55e",
+  AT_RISK: "#f59e0b",
+  COMPLETED: "#6366f1",
+  CANCELLED: "#94a3b8",
 };
 
 export default function DashboardPage() {
@@ -22,7 +40,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!currentWorkspace?.id) return;
     setLoading(true);
-    api.get(`/analytics/workspace/${currentWorkspace.id}`)
+    api
+      .get(`/analytics/workspace/${currentWorkspace.id}`)
       .then((r) => setStats(r.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -33,17 +52,49 @@ export default function DashboardPage() {
       <div className="p-8 text-center text-gray-500">
         <Target size={48} className="mx-auto mb-4 opacity-30" />
         <p className="font-medium">No workspace selected</p>
-        <p className="text-sm mt-1">Create or join a workspace to get started</p>
+        <p className="text-sm mt-1">
+          Create or join a workspace to get started
+        </p>
       </div>
     );
   }
 
-  const statCards = stats ? [
-    { label: 'Total Goals', value: stats.stats.totalGoals, icon: Target, color: 'text-brand-500', bg: 'bg-brand-50 dark:bg-brand-900/20' },
-    { label: 'Completed Goals', value: stats.stats.completedGoals, icon: CheckSquare, color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-900/20' },
-    { label: 'Overdue', value: stats.stats.overdueGoals + stats.stats.overdueItems, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
-    { label: 'Completed This Week', value: stats.stats.completedItemsThisWeek, icon: TrendingUp, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
-  ] : [];
+  const statCards = stats
+    ? [
+        {
+          label: "Total Goals",
+          value: stats.stats.totalGoals,
+          icon: Target,
+          color: "text-brand-500",
+          bg: "bg-brand-50 dark:bg-brand-900/20",
+          borderColor: '#6366f1' 
+        },
+        {
+          label: "Completed Goals",
+          value: stats.stats.completedGoals,
+          icon: CheckSquare,
+          color: "text-green-500",
+          bg: "bg-green-50 dark:bg-green-900/20",
+          borderColor: '#22c55e'
+        },
+        {
+          label: "Overdue",
+          value: stats.stats.overdueGoals + stats.stats.overdueItems,
+          icon: AlertTriangle,
+          color: "text-red-500",
+          bg: "bg-red-50 dark:bg-red-900/20",
+          borderColor: '#ef4444'
+        },
+        {
+          label: "Completed This Week",
+          value: stats.stats.completedItemsThisWeek,
+          icon: TrendingUp,
+          color: "text-purple-500",
+          bg: "bg-purple-50 dark:bg-purple-900/20",
+          borderColor: '#a855f7'
+        },
+      ]
+    : [];
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -53,7 +104,9 @@ export default function DashboardPage() {
           {currentWorkspace.name}
         </h1>
         {currentWorkspace.description && (
-          <p className="text-gray-500 dark:text-gray-400 mt-1">{currentWorkspace.description}</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            {currentWorkspace.description}
+          </p>
         )}
       </div>
 
@@ -71,14 +124,24 @@ export default function DashboardPage() {
           {/* Stat cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {statCards.map((card) => (
-              <div key={card.label} className="card p-5">
+              <div
+                key={card.label}
+                className="card p-5 border-l-4"
+                style={{ borderLeftColor: card.borderColor }}
+              >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">{card.label}</span>
-                  <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center`}>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {card.label}
+                  </span>
+                  <div
+                    className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center`}
+                  >
                     <card.icon size={16} className={card.color} />
                   </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{card.value}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {card.value}
+                </p>
               </div>
             ))}
           </div>
@@ -88,7 +151,9 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Bar chart */}
               <div className="card p-5">
-                <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Goals by Status</h2>
+                <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
+                  Goals by Status
+                </h2>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={stats.goalsByStatus}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -97,7 +162,10 @@ export default function DashboardPage() {
                     <Tooltip />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                       {stats.goalsByStatus.map((entry) => (
-                        <Cell key={entry.status} fill={STATUS_COLORS[entry.status] || '#6366f1'} />
+                        <Cell
+                          key={entry.status}
+                          fill={STATUS_COLORS[entry.status] || "#6366f1"}
+                        />
                       ))}
                     </Bar>
                   </BarChart>
@@ -106,7 +174,9 @@ export default function DashboardPage() {
 
               {/* Pie chart */}
               <div className="card p-5">
-                <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Goal Distribution</h2>
+                <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
+                  Goal Distribution
+                </h2>
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
@@ -119,7 +189,10 @@ export default function DashboardPage() {
                       label={({ status, count }) => `${status}: ${count}`}
                     >
                       {stats.goalsByStatus.map((entry) => (
-                        <Cell key={entry.status} fill={STATUS_COLORS[entry.status] || '#6366f1'} />
+                        <Cell
+                          key={entry.status}
+                          fill={STATUS_COLORS[entry.status] || "#6366f1"}
+                        />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -143,12 +216,16 @@ export default function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-700 dark:text-gray-300">
                         <span className="font-medium">{update.user.name}</span>
-                        {' posted an update on '}
-                        <span className="font-medium text-brand-500">{update.goal.title}</span>
+                        {" posted an update on "}
+                        <span className="font-medium text-brand-500">
+                          {update.goal.title}
+                        </span>
                       </p>
-                      <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{update.content}</p>
+                      <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">
+                        {update.content}
+                      </p>
                       <p className="text-xs text-gray-400 mt-1">
-                        {format(new Date(update.createdAt), 'MMM d, h:mm a')}
+                        {format(new Date(update.createdAt), "MMM d, h:mm a")}
                       </p>
                     </div>
                   </div>

@@ -77,3 +77,14 @@
 .dark ::-webkit-scrollbar-thumb {
   background: #334155;
 }
+
+/* Subtle dot pattern background */
+.bg-gray-50 {
+  background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .bg-gray-950 {
+  background-image: radial-gradient(circle, #1e293b 1px, transparent 1px);
+  background-size: 24px 24px;
+}
