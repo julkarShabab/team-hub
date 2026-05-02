@@ -23,6 +23,7 @@ import useWorkspaceStore from "../../store/workspaceStore";
 import { useSocket } from "../../hooks/useSocket";
 import Avatar from "../../components/Avatar";
 import CreateWorkspaceModal from "../../components/modals/CreateWorkspaceModal";
+import CommandPalette from '../../components/CommandPalette';
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -259,6 +260,7 @@ export default function DashboardLayout({ children }) {
       {showCreateWorkspace && (
         <CreateWorkspaceModal onClose={() => setShowCreateWorkspace(false)} />
       )}
+      <CommandPalette />
     </div>
   );
 }
