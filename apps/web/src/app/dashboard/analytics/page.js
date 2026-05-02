@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
                 cx="50%"
                 cy="50%"
                 outerRadius={90}
-                label={({ status }) => status.replace('_', ' ')}
+                
               >
                 {goalsByStatus.map((entry, i) => (
                   <Cell key={entry.status} fill={COLORS[i % COLORS.length]} />

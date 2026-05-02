@@ -67,7 +67,7 @@ export default function DashboardPage() {
           icon: Target,
           color: "text-brand-500",
           bg: "bg-brand-50 dark:bg-brand-900/20",
-          borderColor: '#6366f1' 
+          borderColor: "#6366f1",
         },
         {
           label: "Completed Goals",
@@ -75,7 +75,7 @@ export default function DashboardPage() {
           icon: CheckSquare,
           color: "text-green-500",
           bg: "bg-green-50 dark:bg-green-900/20",
-          borderColor: '#22c55e'
+          borderColor: "#22c55e",
         },
         {
           label: "Overdue",
@@ -83,7 +83,7 @@ export default function DashboardPage() {
           icon: AlertTriangle,
           color: "text-red-500",
           bg: "bg-red-50 dark:bg-red-900/20",
-          borderColor: '#ef4444'
+          borderColor: "#ef4444",
         },
         {
           label: "Completed This Week",
@@ -91,7 +91,7 @@ export default function DashboardPage() {
           icon: TrendingUp,
           color: "text-purple-500",
           bg: "bg-purple-50 dark:bg-purple-900/20",
-          borderColor: '#a855f7'
+          borderColor: "#a855f7",
         },
       ]
     : [];
@@ -186,7 +186,6 @@ export default function DashboardPage() {
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      label={({ status, count }) => `${status}: ${count}`}
                     >
                       {stats.goalsByStatus.map((entry) => (
                         <Cell
