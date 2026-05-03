@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }) {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen overflow-hidden app-bg">
       {/* Sidebar */}
       <aside
         className={`${sidebarOpen ? "w-64" : "w-16"} flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-200`}
