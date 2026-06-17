@@ -10,8 +10,6 @@ Team Hub helps teams manage workspaces, goals, action items, announcements, memb
 | Service | URL |
 |---|---|
 | Frontend | https://teamhub-8750.up.railway.app |
-| Backend API | https://backend-production-b732.up.railway.app |
-| API Documentation | https://team-hub-production-6ffe.up.railway.app/api/docs |
 
 ---
 
